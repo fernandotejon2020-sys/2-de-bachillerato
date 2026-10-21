@@ -1,0 +1,103 @@
+# Escons València
+
+Simulador interactiu del repartiment de diputats de la província de
+València mitjançant el sistema electoral D'Hondt.
+
+L'aplicació està desenvolupada amb HTML, CSS i JavaScript natiu.
+No necessita instal·lacions, dependències externes ni un servidor propi.
+
+## Funcionalitats
+
+- Modificar els noms de les candidatures.
+- Introduir i modificar els vots de cada partit.
+- Afegir i eliminar candidatures.
+- Configurar el nombre d'escons.
+- Configurar el llindar electoral.
+- Introduir vots en blanc.
+- Calcular automàticament el repartiment d'escons.
+- Consultar els percentatges de vot.
+- Visualitzar gràficament els escons assignats.
+- Descarregar els resultats en format CSV.
+- Utilitzar la interfície des d'ordinadors i mòbils.
+
+## Requisits
+
+Un navegador web modern.
+
+No cal instal·lar Node.js, Python ni cap altra dependència.
+
+## Execució local
+
+1. Descarrega o clona aquest repositori.
+2. Obri el fitxer `index.html` amb el navegador.
+3. Modifica els partits i els vots per a simular diferents escenaris.
+
+## Sistema electoral
+
+L'aplicació implementa el mètode D'Hondt.
+
+Per a cada candidatura es calculen els quocients següents:
+
+    Vots / 1
+    Vots / 2
+    Vots / 3
+    Vots / 4
+    ...
+
+Els escons s'assignen als quocients més elevats fins a completar el
+nombre total d'escons configurat.
+
+Abans del repartiment, s'exclouen les candidatures que no arriben al
+llindar electoral establit.
+
+En cas d'empat exacte, el simulador prioritza la candidatura que
+apareix primer en la taula.
+
+## Configuració inicial
+
+La configuració de demostració inclou:
+
+- 16 escons.
+- Un llindar electoral del 3%.
+- Cinc candidatures fictícies.
+- Cap vot en blanc.
+
+Les dades inicials són únicament il·lustratives.
+
+El nombre d'escons, els vots i el llindar es poden modificar des de
+la interfície.
+
+## Precisió electoral
+
+La configuració inicial està orientada a simular les eleccions al
+Congrés dels Diputats per la província de València.
+
+El llindar del 3% i els 16 escons s'han de verificar respecte de la
+convocatòria electoral que es vulga estudiar.
+
+Per a obtindre resultats oficials, cal comprovar la normativa vigent,
+el cens electoral, els vots vàlids i les candidatures proclamades.
+
+El simulador és una eina educativa i no substitueix un escrutini oficial.
+
+## Publicació amb GitHub Pages
+
+1. Crea un repositori públic a GitHub.
+2. Puja-hi els fitxers `index.html` i `README.md`.
+3. Entra en Settings del repositori.
+4. Obri la secció Pages.
+5. En Build and deployment, selecciona Deploy from a branch.
+6. Selecciona la branca `main` i la carpeta `/ (root)`.
+7. Guarda els canvis.
+8. Espera que GitHub Pages publique la web.
+
+L'adreça tindrà habitualment aquest format:
+
+    https://USUARI.github.io/NOM-DEL-REPOSITORI/
+
+Substitueix USUARI i NOM-DEL-REPOSITORI pels valors reals del repositori.
+
+## Llicència
+
+Projecte educatiu d'ús lliure. Es pot adaptar i ampliar segons les
+necessitats de cada usuari.
