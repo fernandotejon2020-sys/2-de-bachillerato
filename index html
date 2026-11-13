@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#183153">
+<title>Escons València | Simulador electoral</title>
+<style>
+:root {
+  --navy: #183153;
+  --blue: #315b96;
+  --bg: #f3f6fb;
+  --white: #fff;
+  --text: #243247;
+  --muted: #718096;
+  --border: #e1e7f0;
+  --green: #168567;
+  --red: #c34848;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+header {
+  background: var(--navy);
+  color: white;
+  padding: 30px 20px;
+}
+.header-inner, main, footer {
+  max-width: 1100px;
+  margin: auto;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: .75rem;
+  color: #b9cbed;
+  font-weight: 700;
+}
+h1 { margin: 8px 0; font-size: clamp(1.8rem, 5vw, 2.7rem); }
+header p { color: #d7e1f1; margin-bottom: 0; }
+main { padding: 24px 16px 40px; }
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px #18315308;
+}
+h2 { margin: 0 0 16px; font-size: 1.2rem; }
+.settings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+label { display: block; font-size: .88rem; font-weight: 650; }
+input {
+  font: inherit;
+  color: var(--text);
+  border: 1px solid #ccd6e4;
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  margin-top: 6px;
+  min-width: 0;
+}
+input:focus {
+  outline: 2px solid #8eb7f2;
+  border-color: var(--blue);
+}
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td {
+  text-align: left;
+  padding: 11px 8px;
+  border-bottom: 1px solid var(--border);
+}
+th { color: var(--muted); font-size: .78rem; }
+td input { margin: 0; }
+td:first-child { min-width: 160px; }
+td:nth-child(2) { min-width: 140px; }
+td:last-child { width: 50px; }
+.party-name { min-width: 145px; }
+.votes { min-width: 115px; }
+button {
+  cursor: pointer;
+  font: inherit;
+  font-weight: 650;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 15px;
+}
+button:focus-visible {
+  outline: 3px solid #8eb7f2;
+  outline-offset: 2px;
+}
+.primary { background: var(--blue); color: white; }
+.secondary { background: #eaf0f9; color: var(--navy); }
+.remove {
+  background: #fff0f0;
+  color: var(--red);
+  padding: 8px 11px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 17px;
+}
+.note { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: white;
+}
+.stat span { display: block; color: var(--muted); font-size: .83rem; }
+.stat strong { display: block; font-size: 1.7rem; margin-top: 5px; }
+.results-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.party-result {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.party-result strong { font-size: .95rem; }
+.party-result small { display: block; color: var(--muted); margin-top: 3px; }
+.seats {
+  font-size: 1.15rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.bar {
+  height: 8px;
+  background: #edf1f7;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 9px;
+}
+.bar > div { height: 100%; border-radius: 10px; }
+.seat-chart {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+  margin: 20px 0;
+}
+.seat-dot {
+  height: 24px;
+  border-radius: 5px;
+  background: #e3e9f1;
+}
+.seat-dot.filled { background: var(--blue); }
+.winner { color: var(--green); }
+.warning {
+  padding: 12px;
+  background: #fff6df;
+  border-radius: 8px;
+  color: #77571a;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+footer {
+  padding: 0 16px 30px;
+  color: var(--muted);
+  font-size: .85rem;
+}
+@media (max-width: 700px) {
+  .settings, .stats, .results-grid { grid-template-columns: 1fr; }
+  .card { padding: 16px; }
+  .stat { padding: 14px; }
+  .seat-chart { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="eyebrow">Simulador electoral</div>
+    <h1>Escons València</h1>
+    <p>Experimenta amb els vots i calcula el repartiment de diputats.</p>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Configuració electoral</h2>
+    <div class="settings">
+      <label for="seatCount">
+        Nombre de diputats
+        <input id="seatCount" type="number" min="1" max="100" value="16">
+      </label>
+      <label for="threshold">
+        Llindar electoral (%)
+        <input id="threshold" type="number" min="0" max="100"
+               step="0.1" value="3">
+      </label>
+      <label for="blankVotes">
+        Vots en blanc
+        <input id="blankVotes" type="number" min="0" step="1" value="0">
+      </label>
+    </div>
+    <p class="note">
+      La configuració inicial de 16 escons i el llindar del 3% són
+      orientatius per a les eleccions al Congrés dels Diputats.
+      El llindar es calcula sobre els vots vàlids introduïts,
+      incloent-hi els vots en blanc.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Partits polítics i vots</h2>
+    <p class="note">
+      Modifica els noms i els vots directament en la taula.
+      Els resultats es recalculen automàticament.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Partit</th>
+            <th scope="col">Nombre de vots</th>
+            <th scope="col">Eliminar</th>
+          </tr>
+        </thead>
+        <tbody id="partyTable"></tbody>
+      </table>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="addParty">+ Afegir partit</button>
+      <button class="secondary" id="reset">Restablir exemple</button>
+      <button class="secondary" id="download">Descarregar resultats CSV</button>
+    </div>
+  </section>
+
+  <div id="results" aria-live="polite">
+    <section class="stats">
+      <div class="stat">
+        <span>Escons totals</span>
+        <strong id="totalSeats">16</strong>
+      </div>
+      <div class="stat">
+        <span>Vots a candidatures</span>
+        <strong id="totalVotes">0</strong>
+      </div>
+      <div class="stat">
+        <span>Majoria absoluta</span>
+        <strong id="majority">9</strong>
+      </div>
+    </section>
+
+    <section class="results-grid">
+      <div class="card">
+        <h2>Repartiment d'escons</h2>
+        <div id="seatChart" class="seat-chart"
+             role="img" aria-label="Representació visual dels escons"></div>
+        <p class="note">Cada rectangle representa un escó.</p>
+        <div id="seatResults"></div>
+      </div>
+
+      <div class="card">
+        <h2>Resultats electorals</h2>
+        <div id="voteResults"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Com funciona el càlcul?</h2>
+      <p>
+        1. Es calcula el percentatge de vots de cada candidatura.
+      </p>
+      <p>
+        2. S'exclouen les candidatures que no arriben al llindar electoral.
+      </p>
+      <p>
+        3. S'aplica el sistema D'Hondt: els vots de cada candidatura
+        es divideixen successivament per 1, 2, 3, 4 i així successivament.
+      </p>
+      <p>
+        4. Els escons s'assignen als quocients més alts fins a completar
+        el nombre de diputats configurat.
+      </p>
+      <p class="note">
+        Els empats exactes es resolen segons l'ordre de les candidatures
+        en la taula. La simulació no substitueix un escrutini oficial.
+      </p>
+      <div id="messages"></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <p>
+    Escons València · Simulador educatiu de sistemes electorals.
+    Les dades inicials són fictícies i no representen resultats oficials.
+  </p>
+</footer>
+
+<script>
+"use strict";
+
+const COLORS = [
+  "#315b96", "#c94f55", "#e0a52b", "#168567",
+  "#8755a1", "#2699b3", "#df7840", "#65758b",
+  "#b34d86", "#708d32", "#5c65c9", "#99704d"
+];
+
+const EXAMPLE = [
+  { name: "Partit A", votes: 320000 },
+  { name: "Partit B", votes: 270000 },
+  { name: "Partit C", votes: 180000 },
+  { name: "Partit D", votes: 90000 },
+  { name: "Partit E", votes: 40000 }
+];
+
+let parties = EXAMPLE.map(p => ({ ...p }));
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function formatNumber(n) {
+  return new Intl.NumberFormat("ca-ES", {
+    maximumFractionDigits: 0
+  }).format(n);
+}
+
+function formatPercent(n) {
+  return n.toLocaleString("ca-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }) + "%";
+}
+
+function renderTable() {
+  $("partyTable").innerHTML = parties.map((party, index) => `
+    <tr>
+      <td>
+        <input class="party-name" aria-label="Nom del partit ${index + 1}"
+          data-index="${index}" data-field="name"
+          value="${escapeHTML(party.name)}" maxlength="80">
+      </td>
+      <td>
+        <input class="votes" type="number" min="0" step="1"
+          aria-label="Vots del partit ${index + 1}"
+          data-index="${index}" data-field="votes"
+          value="${party.votes}">
+      </td>
+      <td>
+        <button class="remove" data-remove="${index}"
+          aria-label="Eliminar ${escapeHTML(party.name)}">×</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function calculate() {
+  const seats = Math.floor(Number($("seatCount").value));
+  const threshold = Number($("threshold").value);
+  const blank = Number($("blankVotes").value);
+
+  if (!Number.isFinite(seats) || seats < 1 || seats > 100 ||
+      !Number.isFinite(threshold) || threshold < 0 ||
+      threshold > 100 || !Number.isFinite(blank) || blank < 0) {
+    $("messages").innerHTML =
+      '<p class="warning">Revisa la configuració: introdueix un nombre ' +
+      'd\'escons entre 1 i 100, un llindar entre 0 i 100 i vots en ' +
+      'blanc no negatius.</p>';
+    return;
+  }
+
+  const clean = parties.map((p, i) => ({
+    name: p.name.trim() || `Partit ${i + 1}`,
+    votes: Number(p.votes),
+    index: i
+  }));
+
+  if (clean.some(p => !Number.isSafeInteger(p.votes) || p.votes < 0)) {
+    $("messages").innerHTML =
+      '<p class="warning">Els vots han de ser nombres enters no negatius.</p>';
+    return;
+  }
+
+  const partyVotes = clean.reduce((sum, p) => sum + p.votes, 0);
+  const validVotes = partyVotes + blank;
+
+  if (!Number.isSafeInteger(validVotes)) {
+    $("messages").innerHTML =
+      '<p class="warning">La suma de vots és massa gran.</p>';
+    return;
+  }
+
+  const eligible = clean.map(p => ({
+    ...p,
+    percentage: validVotes ? p.votes / validVotes * 100 : 0,
+    seats: 0
+  })).filter(p => p.percentage + 1e-12 >= threshold);
+
+  // D'Hondt: cada escó correspon al quocient més alt disponible.
+  // En cas d'empat, es prioritza la candidatura anterior en la taula.
+  const quotients = [];
+  for (const p of eligible) {
+    for (let divisor = 1; divisor <= seats; divisor++) {
+      quotients.push({
+        partyIndex: p.index,
+        quotient: p.votes / divisor,
+        divisor
+      });
+    }
+  }
+
+  quotients.sort((a, b) =>
+    b.quotient - a.quotient || a.partyIndex - b.partyIndex
+  );
+
+  const allocated = quotients.slice(0, seats);
+  for (const q of allocated) {
+    const party = eligible.find(p => p.index === q.partyIndex);
+    if (party) party.seats++;
+  }
+
+  const elected = new Set(eligible.map(p => p.index));
+  const results = clean.map(p => {
+    const party = eligible.find(e => e.index === p.index);
+    return {
+      ...p,
+      percentage: validVotes ? p.votes / validVotes * 100 : 0,
+      seats: party ? party.seats : 0,
+      eligible: elected.has(p.index)
+    };
+  });
+
+  $("totalSeats").textContent = seats;
+  $("totalVotes").textContent = formatNumber(partyVotes);
+  $("majority").textContent = Math.floor(seats / 2) + 1;
+
+  $("seatChart").innerHTML = "";
+  const seatWinners = allocated.map(q =>
+    eligible.find(p => p.index === q.partyIndex)
+  );
+
+  seatWinners.forEach(p => {
+    const dot = document.createElement("div");
+    dot.className = "seat-dot filled";
+    dot.style.background = COLORS[p.index % COLORS.length];
+    dot.title = p.name;
+    dot.setAttribute("aria-label", "Escó de " + p.name);
+    $("seatChart").appendChild(dot);
+  });
+
+  for (let i = allocated.length; i < seats; i++) {
+    const dot = document.createElement("div");
+    dot.className = "seat-dot";
+    dot.title = "Escó no assignat";
+    $("seatChart").appendChild(dot);
+  }
+
+  const ordered = [...results].sort((a, b) =>
+    b.seats - a.seats || b.votes - a.votes || a.index - b.index
+  );
+
+  $("seatResults").innerHTML = ordered.map(p => `
+    <div class="party-result">
+      <div class="dot" style="background:${COLORS[p.index % COLORS.length]}"></div>
+      <div>
+        <strong>${escapeHTML(p.name)}</strong>
+        <small>${formatNumber(p.votes)} vots · ${formatPercent(p.percentage)}</small>
+        <div class="bar">
+          <div style="width:${seats ? p.seats / seats * 100 : 0}%;
+            background:${COLORS[p.index % COLORS.length]}"></div>
+        </div>
+      </div>
+      <div class="seats">${p.seats} <small>escons</small></div>
+    </div>
+  `).join("") || "<p>No hi ha candidatures.</p>";
+
+  $("voteResults").innerHTML = ordered.map(p => `
+    <div class="party-result">
+      <div class="dot" style="background:${COLORS[p.index % COLORS.length]}"></div>
+      <div>
+        <strong>${escapeHTML(p.name)}</strong>
+        <small>${formatNumber(p.votes)} vots</small>
+        <div class="bar">
+          <div style="width:${Math.min(100, p.percentage)}%;
+            background:${COLORS[p.index % COLORS.length]}"></div>
+        </div>
+        <small>
+          ${p.eligible ? "Supera el llindar electoral" : "No supera el llindar"}
+        </small>
+      </div>
+      <div class="seats">${formatPercent(p.percentage)}</div>
+    </div>
+  `).join("") || "<p>No hi ha candidatures.</p>";
+
+  const warnings = [];
+  if (validVotes === 0) {
+    warnings.push("No hi ha vots introduïts.");
+  }
+  if (eligible.length === 0) {
+    warnings.push("Cap candidatura supera el llindar. No es poden assignar escons.");
+  }
+  if (partyVotes === 0 && blank > 0) {
+    warnings.push("Tots els vots vàlids introduïts són vots en blanc.");
+  }
+
+  $("messages").innerHTML = warnings.map(w =>
+    `<p class="warning">${escapeHTML(w)}</p>`
+  ).join("");
+}
+
+$("partyTable").addEventListener("input", event => {
+  const input = event.target;
+  const index = Number(input.dataset.index);
+  const field = input.dataset.field;
+
+  if (!Number.isInteger(index) || !parties[index] ||
+      !["name", "votes"].includes(field)) return;
+
+  if (field === "name") {
+    parties[index].name = input.value;
+  } else {
+    parties[index].votes = input.value === "" ? 0 : Number(input.value);
+  }
+  calculate();
+});
+
+$("partyTable").addEventListener("click", event => {
+  const button = event.target.closest("[data-remove]");
+  if (!button) return;
+  parties.splice(Number(button.dataset.remove), 1);
+  renderTable();
+  calculate();
+});
+
+["seatCount", "threshold", "blankVotes"].forEach(id => {
+  $(id).addEventListener("input", calculate);
+});
+
+$("addParty").addEventListener("click", () => {
+  parties.push({ name: `Partit ${parties.length + 1}`, votes: 0 });
+  renderTable();
+  calculate();
+
+  const inputs = $("partyTable").querySelectorAll(".party-name");
+  inputs[inputs.length - 1]?.focus();
+});
+
+$("reset").addEventListener("click", () => {
+  parties = EXAMPLE.map(p => ({ ...p }));
+  $("seatCount").value = 16;
+  $("threshold").value = 3;
+  $("blankVotes").value = 0;
+  renderTable();
+  calculate();
+});
+
+$("download").addEventListener("click", () => {
+  const seats = Number($("seatCount").value);
+  const threshold = Number($("threshold").value);
+  const blank = Number($("blankVotes").value);
+  const total = parties.reduce((sum, p) => sum + Number(p.votes), 0) + blank;
+
+  const rows = [
+    ["Partit", "Vots", "Percentatge", "Escons", "Supera el llindar"]
+  ];
+
+  const valid = parties.every(p =>
+    Number.isSafeInteger(Number(p.votes)) && Number(p.votes) >= 0
+  ) && Number.isFinite(total) && total > 0;
+
+  if (!valid) {
+    alert("Introdueix vots vàlids abans de descarregar els resultats.");
+    return;
+  }
+
+  const eligible = parties.map((p, i) => ({
+    ...p,
+    index: i,
+    percentage: Number(p.votes) / total * 100,
+    seats: 0
+  })).filter(p => p.percentage + 1e-12 >= threshold);
+
+  const quotients = [];
+  eligible.forEach(p => {
+    for (let d = 1; d <= seats; d++) {
+      quotients.push({ index: p.index, q: Number(p.votes) / d });
+    }
+  });
+  quotients.sort((a, b) => b.q - a.q || a.index - b.index);
+  quotients.slice(0, seats).forEach(q => {
+    const p = eligible.find(e => e.index === q.index);
+    if (p) p.seats++;
+  });
+
+  parties.forEach((p, i) => {
+    const votes = Number(p.votes);
+    const percentage = votes / total * 100;
+    const elected = eligible.find(e => e.index === i);
+    rows.push([
+      p.name,
+      votes,
+      percentage.toFixed(2) + "%",
+      elected ? elected.seats : 0,
+      percentage + 1e-12 >= threshold ? "Sí" : "No"
+    ]);
+  });
+
+  const csv = "\uFEFF" + rows.map(row =>
+    row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(";")
+  ).join("\r\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "resultats-electorals-valencia.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+renderTable();
+calculate();
+</script>
+</body>
+</html>
